@@ -1,0 +1,505 @@
+# ===================== PLEASE NOTE =====================
+# Due to limitations in Connexion for swagger external
+# references (https://github.com/zalando/connexion/issues/254),
+# this file is an *almost* exact replica of
+# affirm.http.products.consumer.line.checkout.spec
+# so any changes here should also almost always be made
+# on that file or other approaches should
+# be considered. Thanks!
+# ===================== PLEASE NOTE =====================
+swagger: '2.0'
+info:
+  title: Affirm Platform API Specification
+  version: 0.1.0
+host: www.affirm.com
+basePath: /api/products/line_prequal/v1
+paths:
+  /:
+    post:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: prequal_underwrite
+      parameters:
+        - in: body
+          name: poll_info
+          schema:
+            $ref: '#/definitions/PollInfo'
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '202':
+          description: Poll flow response
+          schema:
+            $ref: '#/definitions/FlowPoll'
+        '401':
+          description: Unathorized flow response
+    get:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: poll_init
+      parameters:
+        - in: query
+          name: id
+          description: Flow id
+          type: string
+        - in: query
+          name: task_id
+          description: Celery task id
+          type: string
+        - in: query
+          name: timeout
+          type: integer
+        - in: query
+          name: step
+          type: string
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '202':
+          description: Poll flow response
+          schema:
+            $ref: '#/definitions/FlowPoll'
+        '401':
+          description: Unathorized flow response
+  /{line_request_ari}/income:
+    post:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: income_submit
+      parameters:
+        - in: path
+          type: string
+          name: line_request_ari
+          required: true
+        - in: body
+          name: income_info
+          schema:
+            $ref: '#/definitions/IncomeInfo'
+          required: true
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '202':
+          description: Poll flow response
+          schema:
+            $ref: '#/definitions/FlowPoll'
+        '401':
+          description: Unathorized flow response
+  /{line_request_ari}/housing:
+    post:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: housing_submit
+      parameters:
+        - in: path
+          type: string
+          name: line_request_ari
+          required: true
+        - in: body
+          name: housing_info
+          schema:
+            $ref: '#/definitions/HousingInfo'
+          required: true
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '202':
+          description: Poll flow response
+          schema:
+            $ref: '#/definitions/FlowPoll'
+        '401':
+          description: Unathorized flow response
+  /{line_request_ari}/prequal_disclosures:
+    post:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: prequal_disclosures_submit
+      parameters:
+        - in: path
+          type: string
+          name: line_request_ari
+          required: true
+        - in: body
+          name: prequal_disclosures_info
+          schema:
+            $ref: '#/definitions/DisclosureEvidenceInfo'
+          required: true
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '401':
+          description: Unathorized flow response
+  /{line_request_ari}/line_terms:
+    post:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: line_terms_submit
+      parameters:
+        - in: path
+          type: string
+          name: line_request_ari
+          required: true
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '202':
+          description: Poll flow response
+          schema:
+            $ref: '#/definitions/FlowPoll'
+        '401':
+          description: Unathorized flow response
+  /{line_request_ari}/{step}:
+    get:
+      x-swagger-router-controller: affirm.http.products.consumer.line.prequal.api
+      operationId: poll_step
+      parameters:
+        - in: path
+          type: string
+          name: line_request_ari
+          required: true
+        - in: path
+          type: string
+          name: step
+          required: true
+        - in: query
+          name: task_id
+          description: Celery task id
+          type: string
+        - in: query
+          name: timeout
+          type: integer
+      responses:
+        '200':
+          description: Success flow response
+          schema:
+            $ref: '#/definitions/FlowSuccess'
+        '400':
+          description: Invalid flow response
+          schema:
+            $ref: '#/definitions/FlowFailure'
+        '202':
+          description: Poll flow response
+          schema:
+            $ref: '#/definitions/FlowPoll'
+        '401':
+          description: Unathorized flow response
+definitions:
+  Line:
+    type: object
+    properties:
+      ari:
+        type: string
+      user_ari:
+        type: string
+      status:
+        type: string
+        enum:
+          - prequalified
+          - open
+          - closed
+      standard_apr:
+        type: string
+        example: '15.00'
+      credit_limit:
+        type: integer
+      remaining_credit:
+        type: integer
+      balance_amount:
+        type: integer
+      outstanding_purchases:
+        type: integer
+      next_due_date:
+        type: string
+        format: date
+      estimated_payoff_date:
+        type: string
+        format: date
+      estimated_payoff_date:
+        type: string
+        format: date
+      payments_remaining:
+        type: integer
+      next_due_amount:
+        type: integer
+      overdue_amount:
+        type: integer
+      sub_status_info:
+        $ref: '#/definitions/LineSubstatus'
+    required:
+      - ari
+      - user_ari
+      - status
+      - standard_apr
+      - credit_limit
+
+  LineSubstatus:
+    type: object
+    properties:
+      message:
+        type: string
+      type:
+        type: string
+        enum:
+          - error
+          - neutral
+          - positive
+          - warning
+
+  Installment:
+    type: object
+    properties:
+      amount:
+        type: integer
+      due_date:
+        type: string
+  Term:
+    type: object
+    properties:
+      id:
+        type: string
+      apr:
+        type: string
+      created:
+        type: string
+      amount:
+        type: integer
+      installment_count:
+        type: integer
+      payment_total:
+        type: integer
+      interest_amount:
+        type: integer
+      installments:
+        type: array
+        items:
+          $ref: '#/definitions/Installment'
+  OrderApplication:
+    type: object
+    properties:
+      amount:
+        type: integer
+      currency:
+        type: string
+        enum:
+          - USD
+      deposit_amount:
+        type: integer
+      id:
+        type: string
+      terms:
+        type: array
+        items:
+          $ref: '#/definitions/Term'
+    required:
+      - amount
+      - currency
+      - id
+      - terms
+  Disclosure:
+    type: object
+    properties:
+      disclosure_ari:
+        type: string
+      disclosure_type:
+        type: string
+      disclosure_link:
+        type: string
+      inline_html:
+        type: string
+      linked_disclosures:
+        type: array
+      version:
+        type: string
+    required:
+      - disclosure_ari
+      - disclosure_type
+      - disclosure_link
+      - inline_html
+      - linked_disclosures
+      - version
+  DisclosureEvidence:
+    type: object
+    properties:
+      disclosure_ari:
+        type: string
+      evidence_type:
+        type: string
+        enum:
+          - image
+          - html
+      evidence:
+        type: string
+      linked_disclosures:
+        type: array
+    required:
+      - disclosure_ari
+      - evidence_type
+      - evidence
+      - linked_disclosures
+  PaymentInstrument:
+    type: object
+    properties:
+      card_number:
+        type: string
+      card_type:
+        type: string
+      name:
+        type: string
+      network:
+        type: string
+      id:
+        type: string
+  DeclinationUI:
+    type: object
+    properties:
+      declination_link:
+        type: string
+      main:
+        type: string
+      sub:
+        type: string
+    required:
+      - declination_link
+      - main
+  FlowData:
+    type: object
+    properties:
+      # line terms data
+      line:
+        $ref: '#/definitions/Line'
+      # order terms data
+      order_application:
+        $ref: '#/definitions/OrderApplication'
+      disclosures:
+      # disclosure terms data
+        $ref: '#/definitions/Disclosure'
+      payment_instruments:
+        type: array
+        items:
+          $ref: '#/definitions/PaymentInstrument'
+      # declination data
+      id:
+        type: string
+      reason:
+        type: string
+      ui:
+        $ref: '#/definitions/DeclinationUI'
+      # confirmation data
+      checkout_token:
+        type: string
+      created:
+        type: string
+  FlowSuccess:
+    type: object
+    properties:
+      id:
+        type: string
+      step:
+        type: string
+        enum:
+          - line_prequal/confirmed
+          - line/denied
+          - line_prequal/income
+          - line_prequal/housing
+          - line_prequal/bank_auth
+          - line_prequal/prequal_disclosures
+          - line_prequal/extended_victim
+          - line_prequal/underwrite_line
+          - line_prequal/get_underwrite_line_result
+      data:
+        $ref: '#/definitions/FlowData'
+      submit_url:
+        type: string
+  FlowFailure:
+    type: object
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+    required:
+      - id
+      - message
+  FlowPoll:
+    type: object
+    properties:
+      task_id:
+        type: string
+      step:
+        type: string
+        enum:
+          - line_prequal/get_underwrite_line_result
+    required:
+      - task_id
+      - step
+  IncomeInfo:
+    type: object
+    properties:
+      frequency:  # we currently ignore this because it's always hardcoded to be "yearly"
+        type: string
+        enum:
+          - yearly
+      amount:
+        type: integer
+      tax_free_amount:
+        type: integer
+    required:
+      - amount
+  PollInfo:
+    type: object
+    properties:
+      timeout:
+        type: integer
+  HousingInfo:
+    type: object
+    properties:
+      timeout:
+        type: integer
+      type:
+        type: string
+        enum:
+          - other
+          - own
+          - rent
+      cost:
+        type: integer
+    required:
+      - type
+      - cost
+  DisclosureEvidenceInfo:
+    type: object
+    properties:
+      disclosure_evidence:
+        $ref: '#/definitions/DisclosureEvidence'
+      term_ari:
+        type: string

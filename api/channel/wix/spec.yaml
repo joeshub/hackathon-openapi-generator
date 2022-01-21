@@ -1,0 +1,187 @@
+swagger: "2.0"
+info:
+  title: "WIX API v1"
+  version: "1.0.0"
+basePath: "/api/v1/channel/wix"
+schemes:
+  - "https"
+paths:
+  /connect:
+    post:
+      x-swagger-router-controller: "affirm.http.api.channel.wix.v1.api"
+      operationId: "validate_merchant_api_key_post"
+      summary: "Validates that public API key is live"
+      parameters:
+        - in: body
+          name: data
+          description: "Affirm Credentials"
+          schema:
+            $ref: "#/definitions/Connect"   
+      responses:
+        200:
+          description: "HTTP 200 OK"
+          schema:
+            $ref: "#/definitions/OkResponse"
+        400:
+          description: "HTTP 400 Bad Request"
+          schema:
+            $ref: '#/definitions/ErrorBadRequestConnect'
+  /checkout:
+    post:
+      x-swagger-router-controller: "affirm.http.api.channel.wix.v1.api"
+      operationId: "wix_checkout"
+      summary: "Creates checkout object and returns affirm checkout URL"
+      parameters:
+        - in: body
+          name: checkout_data
+          description: "The hash of the request"
+          schema:
+            $ref: "#/definitions/Checkout"
+      responses:
+        201:
+          description: "Responds back with Affirm Checkout URL"
+          schema:
+            $ref: "#/definitions/OkResponse"
+        400:
+          description: "HTTP 400 Bad Request"
+          schema:
+            $ref: '#/definitions/ErrorBadRequest'
+definitions:
+  OkResponse:
+    type: object
+  ErrorBadRequest:
+    properties:
+      pluginTransactionId:
+        description: "The error message."
+        example: "Bad Request"
+        type: "string"
+      status:
+        description: "The HTTP status code."
+        example: "CANCELED"
+        type: "string"
+      reasonCode:
+        description: "WIX reason code"
+        example: "WIX_BAD_CHECKOUT_OBJECT"
+        type: "string"
+      errorCode:
+        description: "The error type."
+        example: "WIX_ERROR_CODE"
+        type: "string"
+      errorMessage:
+        description: "The error message."
+        example: "Invalid Checkout Object"
+        type: "string"
+    type: "object"
+  ErrorBadRequestConnect:
+    properties:
+      reasonCode:
+        description: "The error message."
+        example: "WIX_INVALID_REQUEST"
+        type: "string"
+      errorCode:
+        description: "error code"
+        example: "CANCELED"
+        type: "string"
+      errorMessage:
+        description: "WIX error message"
+        example: "WIX_INVALID_API"
+        type: "string"
+    type: "object"
+  Connect:
+    type: object
+    properties:
+      credentials:
+        $ref: '#/definitions/Credentials'
+      wixMerchantId:
+        description: "Merchant ID"
+        type: string  
+      mode:
+        description: "Mode"
+        type: string
+      country:
+        description: "Country"
+        type: string  
+      currency:
+        description: "Currency"
+        type: string
+  
+  Credentials:
+    type: object
+    properties:
+      private_key:
+        type: string
+      public_key:
+        type: string
+  
+  Checkout:
+    type: object
+    properties:
+      merchantCredentials:
+        description: "Affirm public and private keys"
+        type: object  
+      paymentMethod:
+        description: "Payment Method ID"
+        type: string   
+      order:
+        $ref: "#/definitions/Order"
+      fraudInformation:
+        description: "Fraud Info"
+        type: object  
+      wixMerchantId:
+        description: "Merchant ID"
+        type: string  
+      wixTransactionId:
+        description: "Transaction ID"
+        type: string
+      mode:
+        description: "mode"
+        type: string
+    required:
+      - "order"
+  
+  Order:
+    type: object
+    properties:
+      id:
+        description: "Wix Order ID"
+        type: string  
+      returnUrls:
+        description: "Return URLs for Cancel and Success"
+        type: object   
+      description:
+        $ref: "#/definitions/OrderDescription"
+    required:
+      - "description"
+  
+  OrderDescription:
+    type: object
+    properties:
+      totalAmount:
+        description: "Order Total"
+        type: integer  
+      items:
+        description: "Detail of items"
+        type: array   
+      billingAddress:
+        $ref: "#/definitions/Address"
+      currency:
+        description: "Currency Code"
+        type: string
+    required:
+      - "items"
+  
+  Address:
+    type: object
+    properties:
+      email:
+        type: string
+      lastName:
+        type: string
+      countryCode:
+        type: string
+      firstName:
+        type: string
+    required:
+      - "firstName"
+      - "lastName"
+      - "email"

@@ -1,0 +1,156 @@
+swagger: "2.0"
+info:
+  title: Voluntary Downpayment API
+  version: 0.1.0
+basePath: /api/vdp/
+paths:
+  /{checkout_ari}/update_charge:
+    post:
+      x-swagger-router-controller: affirm.http.api.consumer.voluntary_downpayment.flask
+      operationId: update_charge_for_downpayment
+      parameters:
+        - in: path
+          name: checkout_ari
+          description: Checkout ARI
+          type: string
+          required: true
+        - in: body
+          name: data
+          description: Voluntary Downpayment Data
+          schema:
+            type: object
+            properties:
+              downpayment_percentage:
+                type: string
+                pattern: '^0\.\d+$'
+                example: '0.125'
+            required:
+              - downpayment_percentage
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: object
+            properties:
+              application_event_ari:
+                type: string
+            required:
+              - application_event_ari
+
+        "400":
+          description: Invalid input
+          schema:
+            $ref: "#/definitions/Error"
+
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/Error"
+
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: "#/definitions/Error"
+
+  /{checkout_ari}/terms:
+    post:
+      x-swagger-router-controller: affirm.http.api.consumer.voluntary_downpayment.flask
+      operationId: request_loan_terms_with_downpayment
+      parameters:
+        - in: path
+          name: checkout_ari
+          description: Checkout ARI
+          type: string
+          required: true
+        - in: body
+          name: data
+          description: Voluntary Downpayment Data
+          schema:
+            type: object
+            properties:
+              downpayment_percentage:
+                type: string
+                pattern: '^0\.\d*$'
+                example: '0.125'
+            required:
+              - downpayment_percentage
+
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: object
+            properties:
+              downpayment_percentage:
+                type: string
+              id:
+                type: string
+              terms:
+                $ref: "#/definitions/Terms"
+
+        "400":
+          description: Invalid input
+          schema:
+            $ref: "#/definitions/Error"
+
+        "404":
+          description: Not Found
+          schema:
+            $ref: "#/definitions/Error"
+
+definitions:
+  Error:
+    type: object
+    properties:
+      type:
+        type: string
+      code:
+        type: string
+      status_code:
+        type: number
+      message:
+        type: string
+    required:
+      - type
+      - status_code
+      - message
+
+  Terms:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+        installment_count:
+          type: integer
+        apr:
+          type: string
+        amount:
+          type: integer
+        downpayment_amount:
+          type: integer
+        financed_amount:
+          type: integer
+        interest_amount:
+          type: integer
+        installments:
+          type: array
+          items:
+            type: object
+            properties:
+              due_date:
+                type: string
+              amount:
+                type: integer
+        disclosures:
+          $ref: "#/definitions/FormattedDisclosures"
+
+  FormattedDisclosures:
+    type: object
+    properties:
+      inline_html:
+        type: string
+      ui:
+        type: string
