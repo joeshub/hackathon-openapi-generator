@@ -244,9 +244,6 @@ definitions:
       estimated_payoff_date:
         type: string
         format: date
-      estimated_payoff_date:
-        type: string
-        format: date
       payments_remaining:
         type: integer
       next_due_amount:
